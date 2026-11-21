@@ -1,26 +1,536 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens.
+ *
+ * `light-dark()` is used with a single `color-scheme` declaration on the root so
+ * native UI (scrollbars, form controls, canvas) follows the visitor's system
+ * preference without duplicating every rule inside a media query.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light dark;
+
+  --surface: light-dark(oklch(99% 0 0), oklch(17% 0.012 265));
+  --surface-raised: light-dark(oklch(100% 0 0), oklch(22% 0.015 265));
+  --surface-sunken: light-dark(oklch(96.5% 0.006 80), oklch(15% 0.01 265));
+  --border: light-dark(oklch(89% 0.008 80), oklch(31% 0.015 265));
+  --text: light-dark(oklch(21% 0.01 265), oklch(96% 0.005 265));
+  --text-muted: light-dark(oklch(48% 0.015 265), oklch(74% 0.012 265));
+  --accent: light-dark(oklch(52% 0.15 55), oklch(78% 0.14 70));
+  --accent-text: light-dark(oklch(99% 0 0), oklch(22% 0.05 60));
+  --accent-soft: light-dark(oklch(95% 0.04 75), oklch(29% 0.05 65));
+  --danger: light-dark(oklch(48% 0.18 25), oklch(72% 0.16 25));
+  --success: light-dark(oklch(44% 0.12 150), oklch(76% 0.13 150));
+
+  --radius: 0.75rem;
+  --shadow: 0 1px 2px light-dark(oklch(0% 0 0 / 0.06), oklch(0% 0 0 / 0.4));
+  accent-color: var(--accent);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  min-height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Keyboard focus is always visible, never removed. */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+  line-height: 1.2;
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+/* ---------------------------------------------------------------- layout --- */
+
+.shell {
+  max-inline-size: 72rem;
+  margin-inline: auto;
+  padding: 1.25rem;
+}
+
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-block-end: 1.25rem;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------- blocks --- */
+
+.card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.1rem 0.55rem;
+  white-space: nowrap;
+}
+
+.badge-accent {
+  background: var(--accent-soft);
+  border-color: transparent;
+  color: var(--text);
+}
+
+.badge-danger {
+  background: color-mix(in oklch, var(--danger) 16%, transparent);
+  border-color: transparent;
+  color: var(--text);
+}
+
+.badge-success {
+  background: color-mix(in oklch, var(--success) 16%, transparent);
+  border-color: transparent;
+  color: var(--text);
+}
+
+.alert {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  font-size: 0.92rem;
+  background: var(--surface-raised);
+}
+
+.alert-error {
+  border-color: var(--danger);
+  color: var(--text);
+  background: color-mix(in oklch, var(--danger) 10%, var(--surface-raised));
+}
+
+.alert-success {
+  border-color: var(--success);
+  background: color-mix(in oklch, var(--success) 10%, var(--surface-raised));
+}
+
+.empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* ----------------------------------------------------------------- nav ----- */
+
+.topbar {
+  background: var(--surface);
+  border-block-end: 1px solid var(--border);
+}
+
+.topbar-inner {
+  max-inline-size: 72rem;
+  margin-inline: auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.nav a {
+  border-radius: 99px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 0.3rem 0.7rem;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.nav a[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.login-wrap {
+  display: grid;
+  place-items: center;
+  min-block-size: 100dvh;
+  padding: 1.25rem;
+}
+
+.login-card {
+  inline-size: 100%;
+  max-inline-size: 24rem;
+}
+
+/* --------------------------------------------------------------- buttons --- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-block-size: 2.75rem;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding-inline: 1rem;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--surface-sunken);
+}
+
+.button-primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--accent-text);
+}
+
+.button-primary:hover {
+  background: color-mix(in oklch, var(--accent) 88%, black);
+}
+
+.button-danger {
+  color: var(--danger);
+  border-color: color-mix(in oklch, var(--danger) 55%, var(--border));
+}
+
+.button-small {
+  min-block-size: 2.25rem;
+  font-size: 0.82rem;
+  padding-inline: 0.75rem;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ---------------------------------------------------------------- forms ---- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-inline-size: 30rem;
+}
+
+.form-wide {
+  max-inline-size: none;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.field > label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.field .required {
+  color: var(--danger);
+}
+
+.field .hint {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+input,
+select,
+textarea {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  font: inherit;
+  font-size: max(1rem, 1em);
+  min-block-size: 2.75rem;
+  padding: 0.5rem 0.65rem;
+  inline-size: 100%;
+}
+
+textarea {
+  min-block-size: 5rem;
+  resize: vertical;
+}
+
+input:user-invalid,
+select:user-invalid,
+textarea:user-invalid {
+  border-color: var(--danger);
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+}
+
+.checkbox-field input {
+  inline-size: 1.15rem;
+  min-block-size: 1.15rem;
+  margin-block-start: 0.2rem;
+}
+
+.inline-form {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* ---------------------------------------------------------------- tables --- */
+
+/*
+ * Responsive table: headers stay visible while scrolling, and below 640px each
+ * row becomes a stacked card whose cells are labelled from `data-label`. The
+ * wrapper is focusable so keyboard users can scroll it.
+ */
+.table-wrapper {
+  container-type: inline-size;
+  inline-size: 100%;
+  max-block-size: min(34rem, 75vh);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+
+.data-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  inline-size: 100%;
+  font-size: 0.9rem;
+}
+
+.data-table caption {
+  text-align: start;
+  padding: 0.75rem 1rem 0.25rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.data-table thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background: var(--surface);
+  border-block-end: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.6rem 0.85rem;
+  text-align: start;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.data-table tbody th,
+.data-table tbody td {
+  border-block-end: 1px solid var(--border);
+  padding: 0.6rem 0.85rem;
+  text-align: start;
+  vertical-align: top;
+}
+
+.data-table tbody th {
+  font-weight: 600;
+  position: sticky;
+  inset-inline-start: 0;
+  background: var(--surface-raised);
+}
+
+.data-table tbody tr:last-child th,
+.data-table tbody tr:last-child td {
+  border-block-end: none;
+}
+
+.data-table .num {
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
+}
+
+@container (width < 640px) {
+  .data-table,
+  .data-table thead,
+  .data-table tbody,
+  .data-table tr,
+  .data-table th,
+  .data-table td {
+    display: block;
+  }
+
+  /* The column header row is replaced by the per cell labels below. */
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table caption {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .data-table tbody tr {
+    border-block-end: 1px solid var(--border);
+    padding: 0.5rem 0.85rem;
+  }
+
+  .data-table tbody tr:last-child {
+    border-block-end: none;
+  }
+
+  .data-table tbody th {
+    position: static;
+    background: transparent;
+    padding: 0.35rem 0;
+  }
+
+  .data-table tbody td {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: space-between;
+    border-block-end: none;
+    padding: 0.2rem 0;
+  }
+
+  .data-table tbody td[data-label]::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .data-table .num {
+    text-align: start;
+  }
+}
+
+/* Screen reader only, used for labels that must not be visible. */
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.progress {
+  background: var(--surface-sunken);
+  border-radius: 99px;
+  block-size: 0.6rem;
+  overflow: hidden;
+}
+
+.progress > span {
+  display: block;
+  block-size: 100%;
+  background: var(--accent);
+  border-radius: inherit;
 }

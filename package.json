@@ -1,26 +1,39 @@
 {
-  "name": "scaffold",
-  "version": "0.1.0",
+  "name": "loyalty-program",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "npm run db:migrate && npm run db:seed && npm run build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "verify": "tsx --test tests/loyalty.test.ts"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.17",
+    "@vercel/blob": "^2.9.0",
+    "drizzle-orm": "^0.45.4",
     "next": "16.4.6",
+    "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
